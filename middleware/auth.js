@@ -22,7 +22,7 @@ const auth = (req, res, next) => {
     console.log("Decoded token:");
     console.log(decodedToken);
 
-    req.userId = decodedToken.id;
+    req.userId = decodedToken._id;
     next();
   });
 };

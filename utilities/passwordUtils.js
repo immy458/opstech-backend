@@ -23,8 +23,8 @@ const validatePasswordStrength = (password) => {
   return true;
 };
 
-const isPasswordValid = async (password, userPassword) => {
+const verifyPassword = async (password, userPassword) => {
   return await bcrypt.compare(password, userPassword);
 };
 
-module.exports = { validatePasswordStrength, hashPassword, isPasswordValid };
+module.exports = { validatePasswordStrength, hashPassword, verifyPassword };
