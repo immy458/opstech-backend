@@ -11,4 +11,14 @@ const generateAuthToken = (data) => {
   }
 };
 
-module.exports = { generateAuthToken };
+const verifyAuthToken = (token, callback) => {
+  try {
+    const decodedToken = jwt.verify(token, process.env.SECRET_STRING);
+    callback(null, decodedToken);
+  } catch (error) {
+    console.error("Error while verifying token:", error);
+    callback(error);
+  }
+};
+
+module.exports = { generateAuthToken, verifyAuthToken };
