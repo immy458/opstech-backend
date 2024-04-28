@@ -1,4 +1,4 @@
-const { verifyAuthToken } = require("../services/tokenService");
+const { verifyAuthToken } = require("../utilities/tokenUtils");
 const { createResponse } = require("../utilities");
 
 const auth = (req, res, next) => {

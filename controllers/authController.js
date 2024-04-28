@@ -1,15 +1,18 @@
+const bcrypt = require("bcryptjs");
 const { TOKEN_EXPIRATION_IN_SECS } = require("../constants");
-const { generateAuthToken } = require("../services/tokenService");
-const { addUser, getUserByName, updateUserById, getUserById } = require("../services/userService");
+const { generateAuthToken, generatePasswordResetToken } = require("../utilities/tokenUtils");
+const { addUser, getUserByName, updateUserById, getUserById, getUserByEmail } = require("../services/userService");
 const { createResponse } = require("../utilities");
 const { hashPassword, verifyPassword, validatePasswordStrength } = require("../utilities/passwordUtils");
+const { getTokenByUserId, deleteTokenByUserId, addToken } = require("../services/tokenService");
+const { sendPasswordResetRequestEmail, sendPasswordResetSuccessfullEmail } = require("../utilities/emailUtils");
 
 const signupController = async (req, res, next) => {
-  const { username, password, role } = req.body;
+  const { username, password, role, email } = req.body;
   try {
     validatePasswordStrength(password);
     const hashedPassword = await hashPassword(password);
-    const userData = { username, password: hashedPassword };
+    const userData = { username, password: hashedPassword, email };
     if (role) userData.role = role;
 
     await addUser(userData);
@@ -19,6 +22,10 @@ const signupController = async (req, res, next) => {
     if (error.name === "MongoServerError" && error.code === 11000) {
       if (error.message.toLowerCase().includes("username"))
         return res.status(400).json(createResponse(false, null, "Username is already taken."));
+      else if (error.message.toLowerCase().includes("email"))
+        return res.status(400).json(createResponse(false, null, "Email is already registered."));
+
+      return res.status(400).json(createResponse(false, null, "Username is already taken."));
     } else if (error.name === "InvalidPasswordFormatError") {
       return res.status(400).json(createResponse(false, null, error.message));
     } else {
@@ -58,7 +65,7 @@ const loginController = async (req, res, next) => {
   }
 };
 
-const resetPassword = async (req, res, next) => {
+const changePassword = async (req, res, next) => {
   const { currentPassword, newPassword } = req.body;
   const userId = req.userId;
 
@@ -89,4 +96,65 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
-module.exports = { signupController, loginController, resetPassword };
+const requestPasswordReset = async (req, res, next) => {
+  const { email } = req.body;
+  try {
+    const user = await getUserByEmail(email);
+    if (!user) return res.status(404).json(createResponse(false, null, "User not found"));
+    console.log(`Found user with email "${email}":`, user);
+
+    const existingToken = await getTokenByUserId(user._id);
+
+    if (existingToken) {
+      console.log(`Deleting old token from db for user '${email}'`);
+      await deleteTokenByUserId(user._id);
+    }
+
+    const resetToken = generatePasswordResetToken();
+    const hashedToken = await bcrypt.hash(resetToken, Number(process.env.SALT_ROUNDS));
+    console.log("Adding genertated token to db");
+    await addToken({ userId: user._id, token: hashedToken, createdAt: Date.now() });
+
+    const link = `${process.env.CLIENT_URL}/password-reset?token=${resetToken}&id=${user._id}`;
+    await sendPasswordResetRequestEmail(link, email);
+
+    return res.status(200).json(createResponse(true, "Email to reset password successfully sent"));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(createResponse(false, null, "Internal Server Error"));
+  }
+};
+
+const resetPassword = async (req, res, next) => {
+  const { token, userId, newPassword } = req.body;
+  try {
+    const existingTokenFromDB = await getTokenByUserId(userId);
+
+    if (!existingTokenFromDB) {
+      return res.status(400).json(createResponse(false, null, "Invalid or expired password reset token"));
+    }
+
+    const isTokenValid = await bcrypt.compare(token, existingTokenFromDB.token);
+    if (!isTokenValid) {
+      return res.status(400).json(createResponse(false, null, "Invalid or expired password reset token"));
+    }
+    validatePasswordStrength(newPassword);
+
+    const hashedNewPassword = await hashPassword(newPassword);
+    await updateUserById(userId, { password: hashedNewPassword });
+
+    const user = await getUserById(userId);
+    await sendPasswordResetSuccessfullEmail(user.email);
+
+    await deleteTokenByUserId(userId);
+    return res.status(200).json(createResponse(true, "Password has been successfully reset"));
+  } catch (error) {
+    console.error(error);
+    if (error.name === "InvalidPasswordFormatError") {
+      return res.status(400).json(createResponse(false, null, error.message));
+    }
+    return res.status(500).json(createResponse(false, null, "Internal Server Error"));
+  }
+};
+
+module.exports = { signupController, loginController, changePassword, requestPasswordReset, resetPassword };
