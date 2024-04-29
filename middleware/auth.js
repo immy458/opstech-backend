@@ -3,7 +3,6 @@ const { createResponse } = require("../utilities");
 
 const auth = (req, res, next) => {
   const token = req.cookies?.authToken;
-
   if (!token) {
     return res.status(401).json(createResponse(false, null, "Token not provided"));
   }

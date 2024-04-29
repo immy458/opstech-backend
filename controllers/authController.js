@@ -8,11 +8,11 @@ const { getTokenByUserId, deleteTokenByUserId, addToken } = require("../services
 const { sendPasswordResetRequestEmail, sendPasswordResetSuccessfullEmail } = require("../utilities/emailUtils");
 
 const signupController = async (req, res, next) => {
-  const { username, password, role, email } = req.body;
+  const { username, password, role, email, firstName, lastName } = req.body;
   try {
     validatePasswordStrength(password);
     const hashedPassword = await hashPassword(password);
-    const userData = { username, password: hashedPassword, email };
+    const userData = { username, password: hashedPassword, email, firstName, lastName };
     if (role) userData.role = role;
 
     await addUser(userData);
@@ -51,13 +51,16 @@ const loginController = async (req, res, next) => {
       return res.status(401).json(createResponse(false, null, "Invalid username or password."));
     }
     delete user._doc.password;
+    delete user._doc.createdAt;
+    delete user._doc.updatedAt;
 
     const token = generateAuthToken({ _id: user._id, username: user.username, role: user.role });
     res.cookie("authToken", token, {
       httpOnly: true,
       maxAge: TOKEN_EXPIRATION_IN_SECS * 1000, // 2hrs in ms
+      sameSite: "None",
+      secure: true,
     });
-
     return res.status(200).json(createResponse(true, user, null));
   } catch (error) {
     console.error(error);
@@ -65,7 +68,7 @@ const loginController = async (req, res, next) => {
   }
 };
 
-const changePassword = async (req, res, next) => {
+const changePasswordController = async (req, res, next) => {
   const { currentPassword, newPassword } = req.body;
   const userId = req.userId;
 
@@ -96,11 +99,20 @@ const changePassword = async (req, res, next) => {
   }
 };
 
-const requestPasswordReset = async (req, res, next) => {
+const requestPasswordResetController = async (req, res, next) => {
   const { email } = req.body;
   try {
     const user = await getUserByEmail(email);
-    if (!user) return res.status(404).json(createResponse(false, null, "User not found"));
+    if (!user)
+      return res
+        .status(404)
+        .json(
+          createResponse(
+            false,
+            null,
+            "We couldn't find an account associated with that email address. Please double-check and try again"
+          )
+        );
     console.log(`Found user with email "${email}":`, user);
 
     const existingToken = await getTokenByUserId(user._id);
@@ -125,9 +137,14 @@ const requestPasswordReset = async (req, res, next) => {
   }
 };
 
-const resetPassword = async (req, res, next) => {
+const resetPasswordController = async (req, res, next) => {
   const { token, userId, newPassword } = req.body;
   try {
+    if (!token) return res.status(400).json(createResponse(false, null, "Password reset token not provided"));
+
+    if (!userId || !newPassword)
+      return res.status(400).json(createResponse(false, null, "Password or user Id not provided"));
+
     const existingTokenFromDB = await getTokenByUserId(userId);
 
     if (!existingTokenFromDB) {
@@ -157,4 +174,16 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
-module.exports = { signupController, loginController, changePassword, requestPasswordReset, resetPassword };
+const logoutController = (req, res, next) => {
+  res.cookie("authToken", "", { httpOnly: true, maxAge: 1, sameSite: "None", secure: true });
+  return res.status(200).json(createResponse(true, "Logged out successfully"));
+};
+
+module.exports = {
+  signupController,
+  loginController,
+  changePasswordController,
+  requestPasswordResetController,
+  resetPasswordController,
+  logoutController,
+};
