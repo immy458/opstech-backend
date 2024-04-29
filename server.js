@@ -21,6 +21,8 @@ connectDB();
 
 app.use("/api", require("./routes/authRoutes"));
 
+app.use("/api", require("./routes/dishRoutes"));
+
 app.listen(process.env.APP_PORT || 8080, () => {
   console.log("App running on port:", process.env.APP_PORT || 8080);
 });
