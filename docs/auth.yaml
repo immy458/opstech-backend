@@ -54,9 +54,9 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
-                  message:
+                  data:
                     type: string
                     example: "User signed up successfully."
         400:
@@ -66,9 +66,12 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
-                  message:
+                  data:
+                    type: object
+                    example: null
+                  error:
                     type: string
                     example: "Username or email is already taken."
         500:
@@ -78,9 +81,12 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
-                  message:
+                  data:
+                    type: object
+                    example: null
+                  error:
                     type: string
                     example: "Internal Server Error"
 
@@ -112,14 +118,14 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
                   data:
-                    type: object
-                    description: "User information"
-                  message:
                     type: string
                     example: "Login successful."
+                  error:
+                    type: string
+                    example: ""
         400:
           description: "Username or password not provided"
           content:
@@ -127,9 +133,12 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
-                  message:
+                  data:
+                    type: object
+                    example: null
+                  error:
                     type: string
                     example: "Username or password not provided."
         401:
@@ -139,9 +148,12 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
-                  message:
+                  data:
+                    type: object
+                    example: null
+                  error:
                     type: string
                     example: "Invalid username or password."
         404:
@@ -151,9 +163,12 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
-                  message:
+                  data:
+                    type: object
+                    example: null
+                  error:
                     type: string
                     example: "User not found."
         500:
@@ -163,9 +178,12 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
-                  message:
+                  data:
+                    type: object
+                    example: null
+                  error:
                     type: string
                     example: "Internal Server Error"
 
@@ -199,11 +217,14 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
-                  message:
+                  data:
                     type: string
                     example: "Password updated successfully."
+                  error:
+                    type: string
+                    example: ""
         400:
           description: "Validation error or invalid current password."
           content:
@@ -211,9 +232,12 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
-                  message:
+                  data:
+                    type: object
+                    example: null
+                  error:
                     type: string
                     example: "Invalid current password or new password not provided."
         404:
@@ -223,9 +247,12 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
-                  message:
+                  data:
+                    type: object
+                    example: null
+                  error:
                     type: string
                     example: "User not found."
         500:
@@ -235,9 +262,12 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
-                  message:
+                  data:
+                    type: object
+                    example: null
+                  error:
                     type: string
                     example: "Internal Server Error"
 
@@ -265,12 +295,15 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
                     example: true
-                  message:
+                  data:
                     type: string
                     example: "Email to reset password successfully sent."
+                  error:
+                    type: string
+                    example: ""
         404:
           description: "Email address not found."
           content:
@@ -278,10 +311,13 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
                     example: false
-                  message:
+                  data:
+                    type: object
+                    example: null
+                  error:
                     type: string
                     example: "We couldn't find an account associated with that email address."
         500:
@@ -291,10 +327,13 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
                     example: false
-                  message:
+                  data:
+                    type: object
+                    example: null
+                  error:
                     type: string
                     example: "Internal Server Error."
 
@@ -330,12 +369,15 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
                     example: true
-                  message:
+                  data:
                     type: string
                     example: "Password has been successfully reset."
+                  error:
+                    type: string
+                    example: ""
         400:
           description: "Invalid or expired password reset token."
           content:
@@ -343,9 +385,12 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
-                  message:
+                  data:
+                    type: object
+                    example: null
+                  error:
                     type: string
                     example: "Invalid or expired password reset token."
         500:
@@ -355,10 +400,13 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
                     example: false
-                  message:
+                  data:
+                    type: object
+                    example: null
+                  error:
                     type: string
                     example: "Internal Server Error."
 
@@ -374,11 +422,14 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
-                  message:
+                  data:
                     type: string
                     example: "Logged out successfully."
+                  error:
+                    type: string
+                    example:
         500:
           description: "Internal Server Error."
           content:
@@ -386,9 +437,12 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
+                  ok:
                     type: boolean
                     example: false
-                  message:
+                  data:
+                    type: object
+                    example: null
+                  error:
                     type: string
                     example: "Internal Server Error."

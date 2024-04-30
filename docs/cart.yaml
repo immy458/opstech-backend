@@ -1,0 +1,219 @@
+openapi: "3.0.0"
+info:
+  title: "Cart Management API"
+  version: "1.0.0"
+  description: "API for managing user carts, including retrieving and adding items."
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /cart:
+    get:
+      summary: "Get User's Cart"
+      description: "Retrieve the cart for the logged-in user."
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: "User's cart retrieved successfully."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  data:
+                    type: object
+                    description: "The user's cart"
+                  error:
+                    type: string
+                    example: ""
+        500:
+          description: "Internal Server Error."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  data:
+                    type: object
+                    example: null
+                  error:
+                    type: string
+    post:
+      summary: "Add Item to Cart"
+      description: "Add a dish to the logged-in user's cart."
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - dishId
+              properties:
+                dishId:
+                  type: string
+                  description: "ID of the dish to add to the cart."
+      responses:
+        200:
+          description: "Item added to cart successfully."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  data:
+                    type: object
+                    description: "Updated cart with the added item."
+                  error:
+                    type: string
+        500:
+          description: "Internal Server Error."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  data:
+                    type: object
+                    example: null
+                  error:
+                    type: string
+                    example: "Internal Server Error."
+    put:
+      summary: "Decrement Item Quantity in Cart"
+      description: "Decrement the quantity of a specific dish in the logged-in user's cart."
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - dishId
+              properties:
+                dishId:
+                  type: string
+                  description: "ID of the dish to decrement quantity."
+      responses:
+        200:
+          description: "Item quantity decremented successfully."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  data:
+                    type: object
+                    description: "Updated cart after quantity decrement."
+                  error:
+                    type: string
+
+        400:
+          description: "Cart does not exist or invalid dish ID."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  data:
+                    type: object
+                    example: null
+                  error:
+                    type: string
+                    example: "Cart doesn't exist or invalid dish ID."
+        500:
+          description: "Internal Server Error."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  data:
+                    type: object
+                    example: null
+                  error:
+                    type: string
+                    example: "Internal Server Error."
+
+  /cart/{dishId}:
+    delete:
+      summary: "Remove Item from Cart"
+      description: "Remove a specific dish from the logged-in user's cart."
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: dishId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "ID of the dish to remove from the cart."
+      responses:
+        200:
+          description: "Item removed from cart successfully."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  data:
+                    type: object
+                    description: "Updated cart after item removal."
+                  error:
+                    type: string
+        400:
+          description: "Cart does not exist or invalid dish ID."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  data:
+                    type: object
+                    example: null
+                  error:
+                    type: string
+                    example: "Cart doesn't exist or invalid dish ID."
+        500:
+          description: "Internal Server Error."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  data:
+                    type: object
+                    example: null
+                  error:
+                    type: string
+                    example: "Internal Server Error."
