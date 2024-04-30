@@ -4,6 +4,10 @@ const getCartByUserId = async (userId) => {
   return await cart.findOne({ user: userId });
 };
 
+const getFullCartItemsByUserId = async (userId) => {
+  return await cart.findOne({ user: userId }).populate({ path: "items.dish", select: "name price type" });
+};
+
 const createCart = async (userId) => {
   return await cart.create({ user: userId });
 };
@@ -55,4 +59,5 @@ module.exports = {
   getCartByUserId,
   removeItemFromCart,
   decrementItemQtyFromCart,
+  getFullCartItemsByUserId,
 };

@@ -4,13 +4,14 @@ const {
   addItemToCart,
   removeItemFromCart,
   decrementItemQtyFromCart,
+  getFullCartItemsByUserId,
 } = require("../services/cartService");
 const { createResponse } = require("../utilities");
 
 const getCartByUserIdController = async (req, res, next) => {
   const userId = req.userId;
   try {
-    let cart = await getCartByUserId(userId);
+    let cart = await getFullCartItemsByUserId(userId);
 
     return res.status(200).json(createResponse(true, cart, null));
   } catch (error) {
