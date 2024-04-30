@@ -1,0 +1,166 @@
+openapi: "3.0.0"
+info:
+  title: "Dish Management API"
+  version: "1.0.0"
+  description: "API for adding and getting dishes."
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /dishes:
+    post:
+      summary: "Add a New Dish"
+      description: "Add a new dish to the menu. Requires admin authorization."
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - price
+                - cuisine
+                - type
+                - category
+              properties:
+                name:
+                  type: string
+                  description: "Name of the dish."
+                description:
+                  type: string
+                  description: "Description of the dish."
+                price:
+                  type: number
+                  description: "Price of the dish."
+                cuisine:
+                  type: string
+                  description: "Cuisine of the dish."
+                type:
+                  type: string
+                  description: "Type of the dish (Veg/Non-Veg)."
+                category:
+                  type: string
+                  description: "Category of the dish (Appetizer, Main Course, Dessert, etc.)."
+      responses:
+        200:
+          description: "Dish added successfully."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    description: "The newly added dish."
+                  error:
+                    type: string
+                    example: ""
+        400:
+          description: "Validation error or missing required attributes."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  data:
+                    type: object
+                  error:
+                    type: string
+                    example: "Missing required attributes."
+        500:
+          description: "Internal Server Error."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  data:
+                    type: object
+                  error:
+                    type: string
+                    example: "Internal Server Error."
+
+    get:
+      summary: "Get All Dishes"
+      description: "Retrieve a list of all dishes, with optional filtering by cuisine, type, and category."
+      parameters:
+        - name: cuisine
+          in: query
+          required: false
+          schema:
+            type: string
+          description: "Filter by cuisine."
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+          description: "Filter by type (Veg/Non-Veg)."
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+          description: "Filter by category (Appetizer, Main Course, Dessert, etc.)."
+      responses:
+        200:
+          description: "Dishes retrieved successfully."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      description: "A list of dishes."
+                  error:
+                    type: string
+                    example: ""
+        400:
+          description: "Validation error."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  data:
+                    type: object
+                  error:
+                    type: string
+                    example: "Validation error."
+        500:
+          description: "Internal Server Error."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  data:
+                    type: object
+                  error:
+                    type: string
+                    example: "Internal Server Error."

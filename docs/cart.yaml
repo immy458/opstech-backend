@@ -15,7 +15,7 @@ paths:
   /cart:
     get:
       summary: "Get User's Cart"
-      description: "Retrieve the cart for the logged-in user."
+      description: "Retrieve the cart for the logged-in user. Requires authorization token"
       security:
         - BearerAuth: []
       responses:
@@ -50,7 +50,7 @@ paths:
                     type: string
     post:
       summary: "Add Item to Cart"
-      description: "Add a dish to the logged-in user's cart."
+      description: "Add a dish to the logged-in user's cart. Requires admin authorization"
       security:
         - BearerAuth: []
       requestBody:
@@ -97,7 +97,7 @@ paths:
                     example: "Internal Server Error."
     put:
       summary: "Decrement Item Quantity in Cart"
-      description: "Decrement the quantity of a specific dish in the logged-in user's cart."
+      description: "Decrement the quantity of a specific dish in the logged-in user's cart. Requires authorization token"
       security:
         - BearerAuth: []
       requestBody:
@@ -162,7 +162,7 @@ paths:
   /cart/{dishId}:
     delete:
       summary: "Remove Item from Cart"
-      description: "Remove a specific dish from the logged-in user's cart."
+      description: "Remove a specific dish from the logged-in user's cart.Requires  authorization token"
       security:
         - BearerAuth: []
       parameters:

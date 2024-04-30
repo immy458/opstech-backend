@@ -190,7 +190,7 @@ paths:
   /change-password:
     patch:
       summary: Change User Password
-      description: Change the password for a logged-in user.
+      description: "Change the password for a logged-in user. Requires admin authorization."
       security:
         - BearerAuth: []
       requestBody:
