@@ -72,8 +72,9 @@ const changePasswordController = async (req, res, next) => {
   const { currentPassword, newPassword } = req.body;
   const userId = req.userId;
 
-  if (!currentPassword || !newPassword)
+  if (!currentPassword || !newPassword) {
     return res.status(400).json(createResponse(false, null, "Current or New Password not provided"));
+  }
   try {
     validatePasswordStrength(newPassword);
 

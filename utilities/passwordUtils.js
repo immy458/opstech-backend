@@ -1,6 +1,5 @@
 const bcrypt = require("bcryptjs");
-
-const InvalidPasswordFormatError = require("../Exceptions");
+const { InvalidPasswordFormatError } = require("../Exceptions");
 
 const hashPassword = async (password) => {
   try {
