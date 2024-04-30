@@ -1,0 +1,394 @@
+openapi: "3.0.0"
+info:
+  title: User Authentication API
+  version: "1.0.0"
+  description: API for user authentication, including signup, login, and password change.
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+
+paths:
+  /signup:
+    post:
+      summary: User Signup
+      description: Register a new user with username, password, role, email, first name, and last name.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+                - email
+                - firstName
+                - lastName
+              properties:
+                username:
+                  type: string
+                  description: "Username for the new user"
+                password:
+                  type: string
+                  description: "Password for the new user"
+                role:
+                  type: string
+                  description: "Role of the new user (optional)"
+                email:
+                  type: string
+                  description: "Email address of the new user"
+                firstName:
+                  type: string
+                  description: "First name of the new user"
+                lastName:
+                  type: string
+                  description: "Last name of the new user"
+      responses:
+        201:
+          description: "User signed up successfully."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "User signed up successfully."
+        400:
+          description: "Bad request due to validation error or duplicate username/email."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "Username or email is already taken."
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "Internal Server Error"
+
+  /login:
+    post:
+      summary: User Login
+      description: Log in with username and password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  description: "Username for login"
+                password:
+                  type: string
+                  description: "Password for login"
+      responses:
+        200:
+          description: "Login successful."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    description: "User information"
+                  message:
+                    type: string
+                    example: "Login successful."
+        400:
+          description: "Username or password not provided"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "Username or password not provided."
+        401:
+          description: "Invalid username or password"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "Invalid username or password."
+        404:
+          description: "User not found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "User not found."
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "Internal Server Error"
+
+  /change-password:
+    patch:
+      summary: Change User Password
+      description: Change the password for a logged-in user.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - currentPassword
+                - newPassword
+              properties:
+                currentPassword:
+                  type: string
+                  description: "Current password for verification"
+                newPassword:
+                  type: string
+                  description: "New password to set"
+      responses:
+        200:
+          description: "Password updated successfully."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "Password updated successfully."
+        400:
+          description: "Validation error or invalid current password."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "Invalid current password or new password not provided."
+        404:
+          description: "User not found."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "User not found."
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "Internal Server Error"
+
+  /request-password-request:
+    post:
+      summary: Request Password Reset
+      description: Request a password reset link sent to the user's email address.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  description: "Email address to send the password reset link."
+      responses:
+        200:
+          description: "Email to reset password successfully sent."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Email to reset password successfully sent."
+        404:
+          description: "Email address not found."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "We couldn't find an account associated with that email address."
+        500:
+          description: "Internal Server Error."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Internal Server Error."
+
+  /reset-password:
+    post:
+      summary: Reset Password
+      description: Reset a user's password using a token sent to their email address.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - userId
+                - newPassword
+              properties:
+                token:
+                  type: string
+                  description: "Password reset token."
+                userId:
+                  type: string
+                  description: "User ID."
+                newPassword:
+                  type: string
+                  description: "New password to set."
+      responses:
+        200:
+          description: "Password has been successfully reset."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Password has been successfully reset."
+        400:
+          description: "Invalid or expired password reset token."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "Invalid or expired password reset token."
+        500:
+          description: "Internal Server Error."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Internal Server Error."
+
+  /logout:
+    get:
+      summary: User Logout
+      description: Logout the user by clearing the authentication cookie.
+      responses:
+        200:
+          description: "Logged out successfully."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "Logged out successfully."
+        500:
+          description: "Internal Server Error."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Internal Server Error."
